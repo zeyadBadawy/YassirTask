@@ -26,7 +26,7 @@ class MovieTableViewCell: UITableViewCell {
     
     func configure(with movie:MovieData) {
         self.moviePosterImageView.loadImage(fromURL: movie.posterFullURL ?? "")
-        self.movieNameLabel.text = movie.originalTitle
+        self.movieNameLabel.text = movie.title
         self.movieOverviewLabel.text = movie.overview
         self.movieReleaseDateLabel.text = movie.releaseDate ?? ""
     }

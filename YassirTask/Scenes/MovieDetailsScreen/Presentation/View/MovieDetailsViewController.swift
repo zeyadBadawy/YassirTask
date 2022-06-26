@@ -76,7 +76,7 @@ private extension MovieDetailsViewController {
                 self.movieOverviewLabel.text = movieDetails.overview ?? ""
                 self.releaseDataLabel.text = movieDetails.releaseDate ?? ""
                 self.reteLabel.text = "\(movieDetails.voteAverage ?? 0)"
-                self.categoryLabel.text = movieDetails.genreIDS?.first?.name ?? ""
+                self.categoryLabel.text = movieDetails.genres?.first?.name ?? ""
         }).disposed(by: disposeBag)
     }
 }

@@ -30,7 +30,7 @@ extension MovieListViewModel {
         guard stateRelay.value != .loading else { return }
         stateRelay.accept(.loading)
         
-        moviesListRepository.fetchTopRatedMovies(using: pageIndex)
+        moviesListRepository.fetchMovies(using: pageIndex)
             .subscribe { [weak self] result in
                 guard let self = self else { return }
                 

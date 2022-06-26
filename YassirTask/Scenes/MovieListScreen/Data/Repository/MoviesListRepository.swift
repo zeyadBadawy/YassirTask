@@ -10,20 +10,29 @@ import RxSwift
 final class MoviesListRepository: MoviesListRepositoryProtocol {
     
     private let apiService: APIServiceProtocol
+    private let conectivity: ConectivityProtocol
+    private let storage: MoviesStorageProtocol
     private let disposeBag: DisposeBag
     
     init(
         apiService: APIServiceProtocol = APIService.shared,
+        storage: MoviesStorageProtocol = MoviesListStorageRepository(),
+        conectivity: ConectivityProtocol = ConectivityManager(),
         disposeBag: DisposeBag = DisposeBag()
     ) {
         self.apiService = apiService
+        self.storage = storage
+        self.conectivity = conectivity
         self.disposeBag = disposeBag
     }
     
-    func fetchTopRatedMovies(
+    func fetchMovies(
         using pageIndex: Int
     ) -> Observable<Result<MoviesResponse, BaseError>> {
-        return fetchFromRemote(using: pageIndex)
+        guard conectivity.isConnectedToNetwork() else {
+            return fetchFromCache()
+        }
+        return fetchFromRemoteAndSaveInCache(using: pageIndex)
     }
 }
 
@@ -42,5 +51,37 @@ private extension MoviesListRepository {
                 using: request,
                 responseType: MoviesResponse.self
             )
+    }
+    
+    func fetchFromRemoteAndSaveInCache(
+        using pageIndex: Int
+    ) -> Observable<Result<MoviesResponse, BaseError>>{
+        let remoteObserver = fetchFromRemote(using: pageIndex)
+        
+        remoteObserver.subscribe(onNext: { result in
+            if case .success(let response) = result, let movies = response.results {
+                self.storage.saveAll(movies)
+            }
+        })
+            .disposed(by: disposeBag)
+        
+        return remoteObserver
+    }
+    
+    func fetchFromCache() -> Observable<Result<MoviesResponse, BaseError>> {
+        let cacheObserver = storage.fetchAll(sortDescriptors: [])
+        
+        return cacheObserver.map { result in
+            guard let movies: [MovieData] = try? result.get() else {
+                return .failure(ErrorResolver.shared.getError(for: .exception))
+            }
+            
+            return .success(
+                MoviesResponse(
+                    results: movies,
+                    totalPages: 0
+                )
+            )
+        }
     }
 }

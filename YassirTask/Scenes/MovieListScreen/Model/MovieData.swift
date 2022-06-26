@@ -11,7 +11,7 @@ struct MovieData: Decodable {
     let id: Int
     let adult: Bool?
     let backdropPath: String?
-    let genreIDS: [genre]?
+    let genres: [genre]?
     let originalLanguage: String?
     let originalTitle: String?
     let overview: String?
@@ -26,7 +26,7 @@ struct MovieData: Decodable {
     enum CodingKeys: String, CodingKey {
         case adult
         case backdropPath = "backdrop_path"
-        case genreIDS = "genres"
+        case genres = "genres"
         case id
         case originalLanguage = "original_language"
         case originalTitle = "original_title"

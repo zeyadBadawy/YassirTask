@@ -10,32 +10,29 @@ import RxSwift
 final class MovieDetailsRepository: MovieDetailsRepositoryProtocol {
     
     private let apiService: APIServiceProtocol
-    
-    //    private let storage: MoviesStorageContract
-    
-    //    private let reachability: ReachabilityContract
+    private let conectivity: ConectivityProtocol
     
     private let disposeBag: DisposeBag
     
     init(
         apiService: APIServiceProtocol = APIService.shared,
-        //        storage: MoviesStorageContract = MoviesStorageManager(),
-        //        reachability: ReachabilityContract = ReachabilityManager(),
+        conectivity: ConectivityProtocol = ConectivityManager(),
         disposeBag: DisposeBag = DisposeBag()
     ) {
         self.apiService = apiService
-        //        self.storage = storage
-        //        self.reachability = reachability
+        self.conectivity = conectivity
         self.disposeBag = disposeBag
     }
     
     func fetchMovieDetails(
         using movieID: Int
     ) -> Observable<Result<MovieData, BaseError>> {
-        //        guard reachability.isConnectedToNetwork() else {
-        //            return fetchFromCache()
-        //        }
-        
+        guard conectivity.isConnectedToNetwork() else {
+            return Observable.create { observer in
+                observer.onNext(.failure(ErrorResolver.shared.getError(for: .connection)))
+                return Disposables.create()
+            }
+        }
         return fetchFromRemote(using: movieID)
     }
 }
