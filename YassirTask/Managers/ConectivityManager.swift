@@ -12,6 +12,7 @@ protocol ConectivityProtocol {
 }
 
 class ConectivityManager: ConectivityProtocol {
+    
     func isConnectedToNetwork() -> Bool {
         var zeroAddress = sockaddr_in(
             sin_len: 0,

@@ -8,6 +8,7 @@
 import Foundation
 
 final class EnvironmentManager {
+    
     enum UserDefined: String {
         case serverScheme = "SERVER_SCHEME"
         case serverHost = "SERVER_HOST"

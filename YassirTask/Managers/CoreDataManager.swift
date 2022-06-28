@@ -8,6 +8,7 @@
 import CoreData
 
 class CoreDataManager {
+    
     // MARK: - private properities
     
     /// Core Data file name
@@ -96,6 +97,7 @@ private extension CoreDataManager {
 }
 
 // MARK: - CoreData Helpers
+
 /// The persistentStore type
 /// -  sqLite
 /// - inMemory

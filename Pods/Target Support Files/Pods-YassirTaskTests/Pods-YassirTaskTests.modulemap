@@ -1,0 +1,6 @@
+framework module Pods_YassirTaskTests {
+  umbrella header "Pods-YassirTaskTests-umbrella.h"
+
+  export *
+  module * { export * }
+}

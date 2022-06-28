@@ -8,6 +8,7 @@
 import UIKit
 
 public class ProgressHUD: UIView {
+    
     private var viewBackground: UIView?
     private var toolbarHUD: UIToolbar?
     private var labelStatus: UILabel?
