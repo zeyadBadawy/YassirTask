@@ -58,6 +58,18 @@ private extension MovieListViewController {
                 return cell
             }
             .disposed(by: disposeBag)
+        
+        viewModel.moviesSubject.subscribe(onNext: { [unowned self] movies in
+            if movies.isEmpty {
+              DispatchQueue.main.async {
+                self.movieListTabelView.setEmptyMessage("No Movies Found")
+              }
+            } else {
+              DispatchQueue.main.async {
+                self.movieListTabelView.restore()
+              }
+            }
+        }).disposed(by: disposeBag)
     }
     
     func subscribeOnReachingTableViewBottomScroll() {
