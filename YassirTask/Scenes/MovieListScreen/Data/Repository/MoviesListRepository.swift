@@ -30,7 +30,14 @@ final class MoviesListRepository: MoviesListRepositoryProtocol {
         using pageIndex: Int
     ) -> Observable<Result<MoviesResponse, BaseError>> {
         guard conectivity.isConnectedToNetwork() else {
-            return fetchFromCache()
+            var fetchIndex = 0
+            if pageIndex != 1 {
+                fetchIndex = (pageIndex * 10) - 10
+            }
+            return fetchFromCache(with: fetchIndex)
+        }
+        if pageIndex == 1 {
+            self.storage.deleteAll()
         }
         return fetchFromRemoteAndSaveInCache(using: pageIndex)
     }
@@ -68,8 +75,8 @@ private extension MoviesListRepository {
         return remoteObserver
     }
     
-    func fetchFromCache() -> Observable<Result<MoviesResponse, BaseError>> {
-        let cacheObserver = storage.fetchAll(sortDescriptors: [])
+    func fetchFromCache(with offset:Int) -> Observable<Result<MoviesResponse, BaseError>> {
+        let cacheObserver = storage.fetchWithOffset(sortDescriptors: [] , fetchOffset: offset)
         
         return cacheObserver.map { result in
             guard let movies: [MovieData] = try? result.get() else {
@@ -79,7 +86,7 @@ private extension MoviesListRepository {
             return .success(
                 MoviesResponse(
                     results: movies,
-                    totalPages: 0
+                    totalPages: Int((Double(self.storage.fetchMoviesCount()) / Double(10)).rounded(.up))
                 )
             )
         }

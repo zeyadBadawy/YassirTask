@@ -11,6 +11,7 @@ import RxCocoa
 class MovieListViewModel:BaseViewModel {
     private let moviesListRepository: MoviesListRepositoryProtocol
     private var pageIndex: Int = 1
+    private var hasMore = true
     private var movies: [MovieData] = [] {
         didSet {
             moviesSubject.onNext(movies)
@@ -27,6 +28,7 @@ class MovieListViewModel:BaseViewModel {
 
 extension MovieListViewModel {
     func fetchMovies() {
+        guard hasMore else { return }
         guard stateRelay.value != .loading else { return }
         stateRelay.accept(.loading)
         
@@ -57,8 +59,10 @@ private extension MovieListViewModel {
     func handleOnCompleteFetchingData(using moviesResponse: MoviesResponse) {
         guard let newMovies: [MovieData] = moviesResponse.results, !newMovies.isEmpty else { return }
         self.movies.append(contentsOf: newMovies)
-        
-        guard let totalPages = moviesResponse.totalPages, totalPages > pageIndex else { return }
+        guard let totalPages = moviesResponse.totalPages, totalPages > pageIndex else {
+            hasMore = false
+            return }
+        self.hasMore = pageIndex <= totalPages
         pageIndex += 1
     }
     

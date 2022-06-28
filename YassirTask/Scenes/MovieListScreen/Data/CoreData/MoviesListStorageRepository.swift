@@ -9,10 +9,11 @@ import RxSwift
 import CoreData
 
 protocol MoviesStorageProtocol {
-    func fetchAll(sortDescriptors: [NSSortDescriptor]) -> Observable<Result<[MovieData], BaseError>>
+    func fetchWithOffset(sortDescriptors: [NSSortDescriptor] , fetchOffset:Int) -> Observable<Result<[MovieData], BaseError>>
     func saveAll(_ movies: [MovieData])
     func save(_ movieData: MovieData)
     func deleteAll()
+    func fetchMoviesCount() -> Int
 }
 
 class MoviesListStorageRepository{
@@ -31,12 +32,16 @@ class MoviesListStorageRepository{
 // MARK: - MoviesStorageProtocol
 
 extension MoviesListStorageRepository: MoviesStorageProtocol {
-    func fetchAll(
-        sortDescriptors: [NSSortDescriptor] = []
+    
+    func fetchWithOffset(
+        sortDescriptors: [NSSortDescriptor] = [],
+        fetchOffset:Int
     ) -> Observable<Result<[MovieData], BaseError>> {
         let fetchRequest = MovieDataEntity.fetchRequest()
         fetchRequest.sortDescriptors = sortDescriptors
         fetchRequest.returnsObjectsAsFaults = false
+        fetchRequest.fetchLimit = 10
+        fetchRequest.fetchOffset = fetchOffset
         
         var moviesDataEntities: [MovieDataEntity] = .init()
         
@@ -55,6 +60,16 @@ extension MoviesListStorageRepository: MoviesStorageProtocol {
             observer.onNext(.success(moviesData))
             observer.onCompleted()
             return Disposables.create()
+        }
+    }
+    
+    func fetchMoviesCount() -> Int {
+        let fetchRequest = MovieDataEntity.fetchRequest()
+        do {
+            return try mainContext.count(for: fetchRequest)
+        }
+        catch {
+            return 0
         }
     }
     
